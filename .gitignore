@@ -1,1 +1,5 @@
-nodes_modules/
+nodes_modules
+grunt-proxy-and-watch/node_modules/
+.idea
+*.iml
+.DS_Store

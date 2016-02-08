@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+
+    <New class="org.eclipse.jetty.plus.jndi.Resource">
+        <Arg>
+            <Ref id="Server"/>
+        </Arg>
+        <Arg>mail/Session</Arg>
+        <Arg>
+            <New class="org.eclipse.jetty.jndi.factories.MailSessionReference">
+                <Set name="properties">
+                    <New class="java.util.Properties">
+                        <Put name="mail.transport.protocol">smtp</Put>
+                        <Put name="mail.smtp.host">localhost</Put>
+                        <Put name="mail.smtp.port">3025</Put>
+                        <Put name="mail.debug">true</Put>
+                    </New>
+                </Set>
+            </New>
+        </Arg>
+    </New>
+
+</Configure>

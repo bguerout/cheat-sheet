@@ -1,8 +1,13 @@
 package com.sample.jetty.utils;
 
 import org.eclipse.jetty.maven.plugin.JettyWebAppContext;
+import org.eclipse.jetty.maven.plugin.ServerSupport;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.junit.runner.Description;
+
+import java.io.File;
 
 
 public class WebServer extends AbstractRule {
@@ -10,26 +15,36 @@ public class WebServer extends AbstractRule {
     private Server server;
 
     public WebServer(int port) {
-        server = new Server(port);
-        server.setStopAtShutdown(true);
-
-        //Enable parsing of jndi-related parts of web.xml and jetty-env.xml
-        org.eclipse.jetty.webapp.Configuration.ClassList classlist = org.eclipse.jetty.webapp.Configuration.ClassList.setServerDefault(server);
-        classlist.addAfter("org.eclipse.jetty.webapp.FragmentConfiguration", "org.eclipse.jetty.plus.webapp.EnvConfiguration", "org.eclipse.jetty.plus.webapp.PlusConfiguration");
-        classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
-
 
         try {
-            JettyWebAppContext webAppContext = new JettyWebAppContext();
-            webAppContext.setJettyEnvXml("./src/test/resources/jetty-env.xml");
-            webAppContext.setContextPath("/app");
-            webAppContext.setResourceBase("./src/main/webapp");
-            webAppContext.setWar("./src/main/webapp");
-            webAppContext.setClassLoader(Server.class.getClassLoader());
-            server.setHandler(webAppContext);
+            server = new Server(port);
+            configureServer(server, createWebAppContext());
         } catch (Exception e) {
             throw new RuntimeException("Unable to create Jetty web app context", e);
         }
+    }
+
+    private void configureServer(Server server, JettyWebAppContext context) {
+        Resource.setDefaultUseCaches(false);
+        ServerSupport.configureDefaultConfigurationClasses(server);
+        server.setStopAtShutdown(true);
+        server.setHandler(context);
+    }
+
+    private JettyWebAppContext createWebAppContext() throws Exception {
+
+        JettyWebAppContext context = new JettyWebAppContext();
+        context.setParentLoaderPriority(true);
+        context.setContextPath("/");
+        context.setJettyEnvXml("./src/test/resources/jetty-env.xml");
+        context.setTempDirectory(new File("./target/tmp"));
+        context.setClasses(new File("./target/classes"));
+        context.setResourceBase("./src/main/webapp/");
+        context.setWar("./src/main/webapp/");
+        context.setClassLoader(new WebAppClassLoader(context));
+        context.setInitParameter("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory");
+
+        return context;
     }
 
     @Override

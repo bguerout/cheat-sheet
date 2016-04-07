@@ -4,27 +4,25 @@
          id="WebApp_ID"
          version="3.0">
 
-    <display-name>Archetype Created Web Application</display-name>
-
-    <filter>
-        <filter-name>MyFilter</filter-name>
-        <filter-class>com.sample.jetty.TestFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>MyFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
     <servlet>
-        <servlet-name>TestServlet</servlet-name>
-        <servlet-class>com.sample.jetty.TestServlet</servlet-class>
+        <servlet-name>com.sample.jetty.RestApplication</servlet-name>
+        <servlet-class>
+            org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
+        </servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>com.sample.jetty.RestApplication</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resteasy.servlet.mapping.prefix</param-name>
+            <param-value>/rest</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
+
     <servlet-mapping>
-        <servlet-name>TestServlet</servlet-name>
-        <url-pattern>/test</url-pattern>
+        <servlet-name>com.sample.jetty.RestApplication</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
-
-
-
 
 </web-app>
